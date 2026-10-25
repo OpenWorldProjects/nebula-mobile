@@ -1,38 +1,95 @@
-# GOG Galaxy Mobile - Readonly Store & Catalog App
+# Nebula — GOG Galaxy Mobile
 
-An ultra-lightweight React Native mobile store viewer for **GOG Galaxy**, crafted to provide an optimized, dead-simple mobile store experience inspired by Steam Mobile and Epic Games Mobile.
+<p align="center">
+  <img src="assets/icon.png" width="96" height="96" alt="Nebula Logo" style="border-radius: 20%;" />
+</p>
 
-## Key Features
+<p align="center">
+  <b>Ultra-lightweight React Native mobile store and library viewer for GOG Galaxy.</b><br/>
+  DRM-free browsing, live account library sync, and instant store checkout.
+</p>
 
-1. **Simple & Ultra-Lightweight (2.1 MB total project footprint)**
-   - Zero heavy local databases or bulky multi-gigabyte build artifacts.
-   - Preserves system disk space while providing a high-performance native-feel experience.
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-blue?style=flat-square" alt="Platform" />
+  <img src="https://img.shields.io/badge/Framework-React%20Native%20%2F%20Expo-61DAFB?style=flat-square&logo=react" alt="React Native" />
+  <img src="https://img.shields.io/badge/License-GPL--3.0--or--later-green?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/DRM-100%25%20DRM--Free-purple?style=flat-square" alt="DRM-Free" />
+</p>
 
-2. **Live GOG Store Integration**
-   - Connects directly to GOG's official catalog API (`https://catalog.gog.com/v1/catalog`), mirroring the query structure used in the Linux desktop client (`goggalaxylinux`).
-   - Real-time catalog browsing, bestselling sorting, price filters, category chips (Action, RPG, Strategy, Indie, etc.), and instant live search.
+---
 
-3. **Security-First Architecture (Steam & GOG Standard)**
-   - Per your recommendation, browsing is completely readonly within the mobile launcher.
-   - Tapping "View in GOG Store" opens official `gog.com` checkout in the user's mobile browser, avoiding sensitive credential handling or in-app payment security liabilities.
+## Screenshots
 
-4. **Wishlist & Deal Tracker**
-   - Save favorite games with the tap of a heart icon.
-   - Dedicated **% DEALS** toggle to spotlight discounts and sales.
+<p align="center">
+  <img src="screenshots/store.png" width="31%" alt="Nebula Store" />
+  <img src="screenshots/library.png" width="31%" alt="Nebula Library" />
+  <img src="screenshots/game_detail.png" width="31%" alt="Nebula Details" />
+</p>
 
-## Running the App
+---
 
-To preview the mobile store immediately:
+## Features
+
+- 🎮 **Live GOG Catalog**: Real-time browsing directly via official GOG Catalog API (`https://catalog.gog.com/v1/catalog`), with instant search, genre filters (Action, RPG, Strategy, etc.), and bestselling sorting.
+- 📚 **GOG Account Library Sync**: Secure OAuth2 login supporting GOG, Google, Steam, and Xbox login providers. Seamlessly synchronizes your owned games (with full pagination past 100+ titles).
+- 🏷️ **Deal Spotlight & Wishlist**: Quickly filter games currently on sale and manage your local wishlist.
+- 🛡️ **Zero-Telemetry & 100% DRM-Free**: No trackers, no analytics, no ads.
+- 🔒 **Security-First Architecture**: Read-only browsing within the client. Purchases open directly in the official `gog.com` web checkout, keeping financial and payment credentials strictly outside the client.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+)
+- npm or yarn
+- Optional: [Expo Go](https://expo.dev/go) app on your Android or iOS device
+
+### Installation
 
 ```bash
-# Start the lightweight server with CORS-safe catalog proxy
-python3 server.py
+# Clone repository
+git clone https://github.com/OpenWorldProjects/nebula-mobile.git
+cd nebula-mobile
+
+# Install dependencies
+npm install
 ```
 
-Then open `http://localhost:8085/` in your browser or mobile browser emulator.
+### Running the App
 
-## React Native Architecture
+Run the app using standard React Native / Expo commands:
 
-- `src/App.native.js`: Native React Native component targeting Android (`.apk`) and iOS.
-- `src/api.js`: Reusable GOG catalog API fetcher.
-- `index.html & style.css`: Mobile web presentation layer.
+```bash
+# Start the Metro bundler / Expo dev server
+npm start
+# or
+npx expo start
+```
+
+Press:
+- `a` to run on a connected Android device or emulator
+- `i` to run on iOS simulator
+- `w` to run on web browser
+
+---
+
+## F-Droid Publication
+
+Nebula is built entirely with open-source technologies and adheres to F-Droid FOSS principles:
+
+1. **Licensing**: Licensed under the GNU General Public License v3.0 or later (GPL-3.0-or-later).
+2. **Privacy**: Contains no proprietary trackers, ads, or binary telemetry SDKs.
+3. **F-Droid Anti-Features**:
+   - `NonFreeNet`: F-Droid applies this standard tag because the app connects to GOG.com's network service to fetch catalog and library data. This is standard for open-source clients of web services (such as NewPipe or Tusky).
+4. **Distribution Options**:
+   - **Official F-Droid**: Submit metadata recipe to [`fdroiddata`](https://gitlab.com/fdroid/fdroiddata).
+   - **Custom F-Droid Repository**: Can be hosted via GitHub Pages using `fdroidserver` for instant over-the-air updates.
+
+---
+
+## License
+
+This project is licensed under the GPL-3.0-or-later License. See `LICENSE` for details.
+All GOG game trademarks, artwork, and covers belong to CD PROJEKT and their respective owners.

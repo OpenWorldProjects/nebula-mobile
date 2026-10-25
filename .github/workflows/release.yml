@@ -1,0 +1,51 @@
+name: Release Nebula APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Standalone APK
+        run: |
+          chmod +x ./build_apk.sh
+          ./build_apk.sh
+
+      - name: Upload to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Nebula.apk
+          name: Nebula ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          body: |
+            ## Nebula — GOG Galaxy Mobile ${{ github.ref_name }}
+
+            ### What's New
+            - 🎮 Live GOG Store catalog browsing with bestselling sorting, category chips, and search
+            - 📚 GOG Account Library synchronization with full pagination (100+ titles)
+            - 🏷️ Real-time deal spotlight and DRM-free badge indicators
+            - 🛡️ Zero telemetry, zero tracking, 100% DRM-Free
+
+            ### Download
+            Download **`Nebula.apk`** below to install directly on any Android device (Android 7.0+).

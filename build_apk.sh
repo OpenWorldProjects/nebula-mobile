@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-SDK_DIR="/home/ella/Android/Sdk"
-BUILD_TOOLS="$SDK_DIR/build-tools/35.0.0"
-PLATFORM="$SDK_DIR/platforms/android-34/android.jar"
-APP_DIR="/home/ella/Projects/goggalaxylaunchermobile"
+APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SDK_DIR="${ANDROID_HOME:-/home/ella/Android/Sdk}"
+BUILD_TOOLS="${BUILD_TOOLS:-$(ls -d $SDK_DIR/build-tools/* 2>/dev/null | sort -V | tail -n 1)}"
+PLATFORM="${PLATFORM:-$(ls $SDK_DIR/platforms/android-*/android.jar 2>/dev/null | sort -V | tail -n 1)}"
 BUILD_DIR="$APP_DIR/android_build"
 
 echo "=== Building Lightweight Native Nebula Android APK ==="
@@ -16,7 +16,7 @@ cat << 'MANIFEST' > "$BUILD_DIR/AndroidManifest.xml"
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nebula.goglauncher"
-    android:versionCode="1"
+    android:versionCode="2"
     android:versionName="1.0.0">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
@@ -39,6 +39,11 @@ cat << 'MANIFEST' > "$BUILD_DIR/AndroidManifest.xml"
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
     </application>
 </manifest>
 MANIFEST
@@ -61,98 +66,13 @@ cp "$APP_DIR/src/api.js" "$BUILD_DIR/assets/src/"
 cp "$APP_DIR/src/app.js" "$BUILD_DIR/assets/src/"
 mkdir -p "$BUILD_DIR/assets/assets"
 cp "$APP_DIR/assets/icon-256.png" "$BUILD_DIR/assets/assets/"
+cp "$APP_DIR/assets/default-avatar.svg" "$BUILD_DIR/assets/assets/" 2>/dev/null || true
+cp "$APP_DIR/bundle.js" "$BUILD_DIR/assets/" 2>/dev/null || true
 
-# 4. Java Activity Source
+# 4. Copy Java sources
 mkdir -p "$BUILD_DIR/src/com/nebula/goglauncher"
-cat << 'JAVA' > "$BUILD_DIR/src/com/nebula/goglauncher/MainActivity.java"
-package com.nebula.goglauncher;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import android.content.Intent;
-import android.net.Uri;
-import android.graphics.Color;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-public class MainActivity extends Activity {
-    private WebView mWebView;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mWebView = new WebView(this);
-        mWebView.setBackgroundColor(Color.parseColor("#0e0d13"));
-
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-
-        mWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Uri uri = request.getUrl();
-                String url = uri.toString();
-                // Safe checkout outside mobile app to browser as requested
-                if (url.contains("gog.com/en/game/") || url.contains("checkout") || url.startsWith("https://www.gog.com")) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(intent);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                Uri uri = request.getUrl();
-                // Direct transparent proxy for GOG catalog API to bypass CORS
-                if (uri.getPath() != null && uri.getPath().startsWith("/api/catalog")) {
-                    try {
-                        String query = uri.getQuery();
-                        String targetUrl = "https://catalog.gog.com/v1/catalog" + (query != null ? "?" + query : "");
-                        URL url = new URL(targetUrl);
-                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setRequestProperty("User-Agent", "NebulaMobile/1.0");
-                        conn.setRequestProperty("Accept", "application/json");
-                        conn.connect();
-                        InputStream in = conn.getInputStream();
-                        WebResourceResponse response = new WebResourceResponse("application/json", "UTF-8", in);
-                        return response;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                return super.shouldInterceptRequest(view, request);
-            }
-        });
-
-        // Load local bundled web application
-        mWebView.loadUrl("file:///android_asset/index.html");
-        setContentView(mWebView);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mWebView != null && mWebView.canGoBack()) {
-            mWebView.goBack();
-        } else {
-            super.onBackPressed();
-        }
-    }
-}
-JAVA
+cp "$APP_DIR/android_src/MainActivity.java" "$BUILD_DIR/src/com/nebula/goglauncher/"
+cp "$APP_DIR/android_src/LoginActivity.java" "$BUILD_DIR/src/com/nebula/goglauncher/"
 
 # 5. Compile Resources with aapt
 "$BUILD_TOOLS/aapt" package -f -m \
@@ -166,7 +86,8 @@ javac -source 1.8 -target 1.8 \
     -bootclasspath "$PLATFORM" \
     -d "$BUILD_DIR/obj" \
     "$BUILD_DIR/gen/com/nebula/goglauncher/R.java" \
-    "$BUILD_DIR/src/com/nebula/goglauncher/MainActivity.java"
+    "$BUILD_DIR/src/com/nebula/goglauncher/MainActivity.java" \
+    "$BUILD_DIR/src/com/nebula/goglauncher/LoginActivity.java"
 
 # 7. Convert bytecode to dex using d8
 "$BUILD_TOOLS/d8" --release --min-api 24 \
@@ -188,6 +109,7 @@ cd "$BUILD_DIR/bin"
 cd "$APP_DIR"
 
 # 9. Zipalign
+rm -f "$APP_DIR/Nebula.apk"
 "$BUILD_TOOLS/zipalign" -v -p 4 "$BUILD_DIR/bin/app-unaligned.apk" "$APP_DIR/Nebula.apk"
 
 # 10. Generate Debug Keystore if needed and Sign APK

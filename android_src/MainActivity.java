@@ -1,75 +1,3 @@
-#!/bin/bash
-set -e
-
-APP_DIR="/home/ella/Projects/goggalaxylaunchermobile"
-SDK_DIR="/home/ella/Android/Sdk"
-BUILD_TOOLS="$SDK_DIR/build-tools/35.0.0"
-PLATFORM="$SDK_DIR/platforms/android-34/android.jar"
-BUILD_DIR="$APP_DIR/android_build"
-
-echo "=== Building Nebula with Generic Avatar Fallback ==="
-rm -rf "$BUILD_DIR"
-mkdir -p "$BUILD_DIR/gen" "$BUILD_DIR/obj" "$BUILD_DIR/bin" "$BUILD_DIR/res/values" "$BUILD_DIR/res/mipmap-xxhdpi" "$BUILD_DIR/assets"
-
-cat << 'MANIFEST' > "$BUILD_DIR/AndroidManifest.xml"
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nebula.goglauncher"
-    android:versionCode="3"
-    android:versionName="1.1.1">
-
-    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <application
-        android:label="Nebula"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-        android:usesCleartextTraffic="true"
-        android:hardwareAccelerated="true">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:configChanges="orientation|screenSize|keyboardHidden">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-    </application>
-</manifest>
-MANIFEST
-
-cat << 'STRINGS' > "$BUILD_DIR/res/values/strings.xml"
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Nebula</string>
-</resources>
-STRINGS
-
-cp "$APP_DIR/assets/icon-256.png" "$BUILD_DIR/res/mipmap-xxhdpi/ic_launcher.png"
-
-# Copy assets
-cp "$APP_DIR/index.html" "$BUILD_DIR/assets/"
-cp "$APP_DIR/style.css" "$BUILD_DIR/assets/"
-cp "$APP_DIR/bundle.js" "$BUILD_DIR/assets/"
-mkdir -p "$BUILD_DIR/assets/assets"
-cp "$APP_DIR/assets/icon-256.png" "$BUILD_DIR/assets/assets/"
-cp "$APP_DIR/assets/default-avatar.svg" "$BUILD_DIR/assets/assets/"
-cp "$APP_DIR/assets/nebula-logo.svg" "$BUILD_DIR/assets/assets/"
-
-mkdir -p "$BUILD_DIR/src/com/nebula/goglauncher"
-cp "$APP_DIR/android_src/LoginActivity.java" "$BUILD_DIR/src/com/nebula/goglauncher/"
-
-# Copy MainActivity
-cat << 'JAVA' > "$BUILD_DIR/src/com/nebula/goglauncher/MainActivity.java"
 package com.nebula.goglauncher;
 
 import android.app.Activity;
@@ -217,6 +145,7 @@ public class MainActivity extends Activity {
                     final String refreshToken = tokenObj.getString("refresh_token");
                     final String userId = tokenObj.getString("user_id");
 
+                    // Fetch user details & username
                     String username = "GOG Gamer";
                     String avatarUrl = "";
                     try {
@@ -237,8 +166,6 @@ public class MainActivity extends Activity {
                             else if (av instanceof JSONObject) {
                                 JSONObject avObj = (JSONObject) av;
                                 if (avObj.has("large")) avatarUrl = avObj.getString("large");
-                                else if (avObj.has("big")) avatarUrl = avObj.getString("big");
-                                else if (avObj.has("medium")) avatarUrl = avObj.getString("medium");
                             }
                         }
                     } catch (Exception ex) {
@@ -280,44 +207,3 @@ public class MainActivity extends Activity {
         }
     }
 }
-JAVA
-
-"$BUILD_TOOLS/aapt" package -f -m \
-    -J "$BUILD_DIR/gen" \
-    -M "$BUILD_DIR/AndroidManifest.xml" \
-    -S "$BUILD_DIR/res" \
-    -I "$PLATFORM"
-
-javac -source 1.8 -target 1.8 \
-    -bootclasspath "$PLATFORM" \
-    -d "$BUILD_DIR/obj" \
-    "$BUILD_DIR/gen/com/nebula/goglauncher/R.java" \
-    "$BUILD_DIR"/src/com/nebula/goglauncher/*.java
-
-"$BUILD_TOOLS/d8" --release --min-api 24 \
-    --output "$BUILD_DIR/bin" \
-    --lib "$PLATFORM" \
-    "$BUILD_DIR"/obj/com/nebula/goglauncher/*.class
-
-"$BUILD_TOOLS/aapt" package -f \
-    -M "$BUILD_DIR/AndroidManifest.xml" \
-    -S "$BUILD_DIR/res" \
-    -A "$BUILD_DIR/assets" \
-    -I "$PLATFORM" \
-    -F "$BUILD_DIR/bin/app-unaligned.apk"
-
-cd "$BUILD_DIR/bin"
-"$BUILD_TOOLS/aapt" add app-unaligned.apk classes.dex
-cd "$APP_DIR"
-
-rm -f "$APP_DIR/Nebula.apk"
-"$BUILD_TOOLS/zipalign" -v -p 4 "$BUILD_DIR/bin/app-unaligned.apk" "$APP_DIR/Nebula.apk"
-"$BUILD_TOOLS/apksigner" sign --ks "$APP_DIR/debug.keystore" --ks-pass pass:android --key-pass pass:android "$APP_DIR/Nebula.apk"
-
-echo "=== Deploying to phone ==="
-adb install -r "$APP_DIR/Nebula.apk"
-adb shell am force-stop com.nebula.goglauncher
-adb shell am start -n com.nebula.goglauncher/.MainActivity
-
-rm -rf "$BUILD_DIR"
-echo "=== Deployed with generic profile avatar fallback! ==="

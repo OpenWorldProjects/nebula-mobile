@@ -1,6 +1,7 @@
 node_modules/
 android_build/
 *.idsig
+*.apk
 debug.keystore
 *.log
 .DS_Store

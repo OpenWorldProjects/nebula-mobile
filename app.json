@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Nebula",
+    "slug": "nebula-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d0f17"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#0d0f17"
+      },
+      "package": "com.nebula.goglauncher"
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
+    }
+  }
+}

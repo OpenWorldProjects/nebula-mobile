@@ -1,13 +1,41 @@
 {
-  "name": "gog-galaxy-mobile",
+  "name": "nebula-mobile",
   "version": "1.0.0",
-  "description": "Ultra-lightweight React Native mobile store viewer for GOG Galaxy",
-  "main": "src/index.js",
+  "description": "Nebula: Lightweight React Native mobile store and library viewer for GOG Galaxy",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "serve . -p 8081",
-    "web": "python3 -m http.server 8081"
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
   },
-  "keywords": ["gog", "galaxy", "mobile", "react-native", "store"],
-  "author": "",
-  "license": "MIT"
+  "dependencies": {
+    "expo": "~51.0.0",
+    "expo-status-bar": "~1.12.1",
+    "react": "18.2.0",
+    "react-native": "0.74.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  },
+  "keywords": [
+    "gog",
+    "gog-galaxy",
+    "mobile",
+    "react-native",
+    "expo",
+    "store",
+    "library",
+    "drm-free"
+  ],
+  "author": "OpenWorldProjects",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenWorldProjects/nebula-mobile.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OpenWorldProjects/nebula-mobile/issues"
+  },
+  "homepage": "https://github.com/OpenWorldProjects/nebula-mobile#readme"
 }
