@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nebula - GOG Store & Library</title>
+  <link rel="icon" type="image/png" href="assets/icon-256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="device-viewport">
+    
+    <!-- Top System & App Navigation Bar -->
+    <header class="app-header">
+      <div class="status-bar-spacer"></div>
+      <div class="header-content">
+        <div class="brand">
+          <div class="galaxy-logo">
+            <img src="assets/nebula-logo.svg" alt="Nebula" width="30" height="30" />
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">NEBULA</span>
+            <span class="brand-badge" id="subBrandBadge">GOG STORE</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="authBtn" class="pill-btn auth-pill">
+            <span id="authBtnIcon" class="auth-icon-wrap">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="#ffffff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <span id="authBtnText">LOGIN</span>
+          </button>
+          <button id="viewToggleBtn" class="icon-btn" title="Toggle Grid/List">
+            <svg id="viewGridIcon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <svg id="viewListIcon" class="hidden" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Search Bar -->
+      <div class="search-container">
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="search" id="searchInput" placeholder="Search store, deals, library..." autocomplete="off" />
+          <button id="searchClearBtn" class="clear-search hidden">&times;</button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills (Horizontal Scroll) -->
+      <nav class="genres-bar" id="genresBar"></nav>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="store-scroll-view" id="storeScrollView">
+      
+      <!-- User Profile Banner (Visible when logged in on Library view) -->
+      <div class="user-profile-banner hidden" id="userProfileBanner">
+        <div class="avatar-ring">
+          <img id="userAvatarImg" src="assets/default-avatar.svg" alt="Avatar" onerror="this.onerror=null; this.src='assets/default-avatar.svg';" />
+        </div>
+        <div class="user-meta">
+          <h3 id="userGreeting">GOG Gamer</h3>
+          <span class="user-sub" id="userGameCount">0 Owned Games</span>
+        </div>
+        <button id="logoutBtn" class="pill-btn logout-pill">LOGOUT</button>
+      </div>
+
+      <!-- Featured Highlight Carousel (Hero) -->
+      <section class="hero-section" id="heroSection">
+        <div class="section-header-compact">
+          <span class="sub-heading">SPOTLIGHT</span>
+          <span class="live-indicator"><span class="dot"></span> DRM-FREE</span>
+        </div>
+        <div class="hero-card" id="heroCard">
+          <div class="hero-loader">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sort & Filter Bar -->
+      <div class="sort-bar">
+        <div class="results-count" id="resultsCount">Loading Games...</div>
+        <div class="sort-dropdown-wrap" id="sortDropdownWrap">
+          <label for="sortSelect">SORT:</label>
+          <select id="sortSelect">
+            <option value="desc:bestselling">Bestselling</option>
+            <option value="asc:price">Lowest Price</option>
+            <option value="desc:discount">Highest Discount</option>
+            <option value="desc:releaseDate">New Releases</option>
+            <option value="asc:title">Title (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Dynamic Grid / List -->
+      <div class="catalog-container grid-view" id="catalogContainer">
+        <!-- Cards injected dynamically -->
+      </div>
+
+      <!-- Load More Button -->
+      <div class="load-more-section" id="loadMoreSection">
+        <button id="loadMoreBtn" class="load-more-btn">Load More Games</button>
+      </div>
+
+    </main>
+
+    <!-- Bottom Mobile Navigation Bar (Steam Mobile Style: Store, Library, Deals, Wishlist) -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="store">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span>Store</span>
+      </button>
+      <button class="nav-item" data-tab="library">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Library</span>
+        <span class="badge hidden" id="libraryCountBadge">0</span>
+      </button>
+      <button class="nav-item" data-tab="deals">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Deals</span>
+      </button>
+      <button class="nav-item" data-tab="wishlist">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        <span>Wishlist</span>
+        <span class="badge" id="wishlistCount">0</span>
+      </button>
+    </nav>
+
+    <!-- Modal: Game Detail Sheet -->
+    <div class="modal-backdrop hidden" id="gameModalBackdrop">
+      <div class="modal-sheet" id="gameModalSheet">
+        <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+        <div class="modal-content" id="modalContent"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="bundle.js"></script>
+</body>
+</html>

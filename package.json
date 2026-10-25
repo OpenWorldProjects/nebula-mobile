@@ -1,0 +1,13 @@
+{
+  "name": "gog-galaxy-mobile",
+  "version": "1.0.0",
+  "description": "Ultra-lightweight React Native mobile store viewer for GOG Galaxy",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "serve . -p 8081",
+    "web": "python3 -m http.server 8081"
+  },
+  "keywords": ["gog", "galaxy", "mobile", "react-native", "store"],
+  "author": "",
+  "license": "MIT"
+}

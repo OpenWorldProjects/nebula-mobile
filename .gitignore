@@ -1,0 +1,6 @@
+node_modules/
+android_build/
+*.idsig
+debug.keystore
+*.log
+.DS_Store
