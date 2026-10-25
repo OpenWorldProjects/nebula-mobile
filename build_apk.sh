@@ -2,7 +2,7 @@
 set -e
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SDK_DIR="${ANDROID_HOME:-/home/ella/Android/Sdk}"
+SDK_DIR="${ANDROID_HOME:-$HOME/Android/Sdk}"
 BUILD_TOOLS="${BUILD_TOOLS:-$(ls -d $SDK_DIR/build-tools/* 2>/dev/null | sort -V | tail -n 1)}"
 PLATFORM="${PLATFORM:-$(ls $SDK_DIR/platforms/android-*/android.jar 2>/dev/null | sort -V | tail -n 1)}"
 BUILD_DIR="$APP_DIR/android_build"
